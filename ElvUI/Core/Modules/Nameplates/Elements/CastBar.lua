@@ -102,16 +102,21 @@ function NP:Castbar_PostCastStart(unit)
 					self.Text:SetText(spellName..' > '..self.curTarget)
 				end
 			elseif frameType == 'ENEMY_NPC' or frameType == 'FRIENDLY_NPC' then
-				local target, targetID = UnitName(unit..'target'), unit..'target'
-				local targetGUID = UnitGUID(targetID)
-				if UnitIsPlayer(target) then
-					local data = CH:GetPlayerInfoByGUID(targetGUID)
-					local classColor = NP.PlateGUID[targetGUID]
+				local targetID = unit.."target"  -- Get the target unitID
+				local targetName = UnitName(targetID)  -- Get the target name
+				local targetGUID = UnitGUID(targetID)  -- Get the target's GUID
+
+				-- Ensure the target exists and is a player
+				if targetGUID and UnitIsPlayer(targetID) then
+					local data = CH:GetPlayerInfoByGUID(targetGUID)  -- Get class color data
+					local classColor = NP.PlateGUID[targetGUID] or "|cFFFFFFFF"  -- Default to white if no class color
 					if data and data.classColor then
-						classColor = data.classColor.colorStr
+						classColor = data.classColor.colorStr  -- Use class color if available
 					end
-					if target and target ~= '' and target ~= plate.unitName then
-						plate.Castbar.Text:SetFormattedText('%s > %s', spellName, classColor and strjoin('', '|c', classColor ..target:sub(1, db.castbar.textAbbreviation)))
+
+					-- Ensure targetName is valid and not the casting unit itself
+					if targetName and targetName ~= '' and targetName ~= plate.unitName then
+						plate.Castbar.Text:SetFormattedText('%s > %s', spellName, classColor and strjoin('', '|c', classColor, targetName:sub(1, db.castbar.textAbbreviation)))
 					end
 				end
 			end
